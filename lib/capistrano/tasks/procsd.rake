@@ -2,12 +2,13 @@ require 'sshkit/sudo'
 
 namespace :procsd do
   desc "Create or restart (if already created) app services"
-  task :create_or_restart, :arguments do |t, args|
-    arguments = args[:arguments]
-
+  task :create_or_restart do
     on roles(:all) do
       within "#{deploy_to}/current" do
-        execute! :procsd, :create, :'--or-restart', arguments
+        cmd = %i(procsd create --or-restart)
+        cmd << :'--add-to-sudoers' if fetch(:procsd_sudoers_at_create_or_restart)
+
+        execute! *cmd
       end
     end
   end

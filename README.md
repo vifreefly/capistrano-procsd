@@ -116,13 +116,16 @@ Now try to call restart task `$ bundle exec cap production procsd:restart`. If a
 ```ruby
 # config/deploy.rb
 
-# pass `--add-to-sudoers` option to `procsd create` command
-set :procsd_add_to_sudoers_at_create, true
+# pass `--add-to-sudoers` option to the `procsd create` command:
+set :procsd_sudoers_at_create_or_restart, true
 ```
 
-Now sudoers rule will be added at the first deploy automatically (`--add-to-sudoers` option).
+Now sudoers rule will be added at the first deploy automatically.
 
 ## Examples
+
+* `bundle exec cap production procsd:logs[-t]` - Tail application logs
+* `bundle exec cap production procsd:run[bash]` - `ssh` into app server, `cd` into app directory and leave the bash session open
 
 ## License
 
