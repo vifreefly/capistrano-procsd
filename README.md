@@ -23,7 +23,7 @@ Add to your application `Gemfile` somewhere:
 # Gemfile
 
 group :development do
-  gem 'capistrano-procsd' require: false
+  gem 'capistrano-procsd', require: false
 end
 ```
 
@@ -45,9 +45,10 @@ after "deploy:publishing", "procsd:create_or_restart"
 
 Done!
 
-### Note about procsd location on the remote server
+### Procsd location on the remote server
+#### System-wide
 
-Configuration above assumes that you have `$ procsd` executable somewhere in the system path on your remote server. You can install gem system-wide this way:
+Configuration above assumes that you have `$ procsd` executable somewhere in the global system path on your remote server. You can install gem system-wide this way:
 
 ```bash
 # Install ruby system-wide from apt repositories:
@@ -55,9 +56,16 @@ $ sudo apt install ruby
 
 # Install procsd gem system-wide:
 $ sudo gem install procsd
-```
 
-Or, if you already use [Rbenv](https://github.com/rbenv/rbenv) you can do instead following:
+# Check the procsd installed path:
+$ sudo which procsd
+/usr/local/bin/procsd
+```
+> Like you see, Procsd installed to the system bin path /usr/local/bin/ and can be accessed from any user and kind of connection (including default Capistrano non-interactive, non-login ssh connection)
+
+#### Local user installation using Rbenv
+
+There is another way if you don't want to install Ruby system-wide for some reason and use [Rbenv](https://github.com/rbenv/rbenv) instead:
 
 Add `procsd` gem to your application Gemfile:
 
@@ -96,6 +104,8 @@ append :bundle_bins, "procsd"
 
 At the first deploy `$ bundle exec cap production deploy` app services will be created and started. You will be prompted to fill in remote user password (make sure that your deploy user added to the sudo group `adduser deploy sudo`).
 
+### Start/Stop/Restart services without sudo password
+
 If you don't want to type password each time while deploying, you can add start/stop/restart commands to the sudoers file:
 
 1. Login to the remote server, `cd` into application folder, and type `$ procsd config sudoers`. Example:
@@ -111,7 +121,7 @@ deploy ALL=NOPASSWD: /bin/systemctl start sample_app.target, /bin/systemctl stop
 Now try to call restart task `$ bundle exec cap production procsd:restart`. If all is fine, task will execute without password prompt.
 
 
-**Also, steps above can be done automatically:**
+**Note: steps above can be done automatically as well:**
 
 ```ruby
 # config/deploy.rb
