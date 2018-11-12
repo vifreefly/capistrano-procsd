@@ -35,12 +35,12 @@ Require procsd tasks inside `Capfile`:
 require 'capistrano/procsd'
 ```
 
-And finally add hook to call `procsd:create_or_restart` task each time after publishing:
+And finally add hook to call `procsd:create_or_restart` task each time after [publishing](https://capistranorb.com/documentation/getting-started/flow/):
 
 ```ruby
 # config/deploy.rb
 
-after "deploy:publishing", "procsd:create_or_restart"
+after "deploy:published", "procsd:create_or_restart"
 ```
 
 Done!
