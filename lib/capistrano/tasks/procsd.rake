@@ -69,7 +69,7 @@ namespace :procsd do
     arguments = args[:arguments]
 
     on roles(:all) do
-      ssh_exec cmd_with_env("procsd status #{arguments}")
+      ssh_exec cmd_with_env("procsd status #{arguments}"), task_name: :status
     end
   end
 
@@ -78,14 +78,14 @@ namespace :procsd do
     arguments = args[:arguments]
 
     on roles(:all) do
-      ssh_exec cmd_with_env("procsd logs #{arguments}")
+      ssh_exec cmd_with_env("procsd logs #{arguments}"), task_name: :logs
     end
   end
 
   desc "List all services"
   task :list do
     on roles(:all) do
-      ssh_exec cmd_with_env("procsd list")
+      ssh_exec cmd_with_env("procsd list"), task_name: :list
     end
   end
 
@@ -97,19 +97,19 @@ namespace :procsd do
     raise "Please provide a command to run" if cmd.nil? || cmd.empty?
 
     on roles(:all) do
-      ssh_exec cmd_with_env(cmd)
+      ssh_exec cmd_with_env(cmd), task_name: :run
     end
   end
 
   ###
 
   private def cmd_with_env(cmd)
-    cmd = cmd.split(" ", 2)
+    cmd = cmd.strip.split(" ", 2)
     cmd[0] = cmd[0].to_sym
     command(cmd, {}).to_s
   end
 
-  private def ssh_exec(command)
+  private def ssh_exec(command, task_name:)
     full_command = %W(ssh #{host.user}@#{host.hostname} -t)
 
     ssh_options = fetch(:ssh_options, {})
@@ -120,7 +120,8 @@ namespace :procsd do
     command = "'cd #{release_path} && #{command}'"
     full_command << command
 
-    puts "Executing: `#{full_command.join(' ')}`\n\n"
-    exec full_command.join(" ")
+    cmd = full_command.join(" ")
+    puts Airbrussh::Colors.blue("procsd:#{task_name} ") + Airbrussh::Colors.yellow(cmd)
+    exec cmd
   end
 end
