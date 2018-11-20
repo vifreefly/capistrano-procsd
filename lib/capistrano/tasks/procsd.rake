@@ -95,6 +95,8 @@ namespace :procsd do
   task :run, :cmd do |t, args|
     cmd = args[:cmd]
     raise "Please provide a command to run" if cmd.nil? || cmd.empty?
+    # Automatically prepend -l option (login shell) for a bash command:
+    cmd += " -l" if cmd == "bash"
 
     on roles(:all) do
       ssh_exec cmd_with_env(cmd), task_name: :run
